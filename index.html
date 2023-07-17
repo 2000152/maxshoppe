@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="./js/script.js" type="module"></script>
+    <link rel="stylesheet" href="./css/style.css" />
+    <title>Max shoppe</title>
+    <style>
+        .search-container {
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          margin-top: 2rem;
+        }
+
+        #search {
+          width: 70%;
+          height: 50px;
+          border-radius: 25px;
+          border: 1px solid #ccc;
+          padding: 0 20px;
+          font-size: 20px;
+        }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="./index.html">Home</a></li>
+        <li><a href="./shopping-cart.html">Shopping Cart</a></li>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+      
+    </nav>
+    
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Search products..."/>
+    </div>
+
+    <div class="allProductsApp">
+      <header class="header">
+        <h2 class="header__title">Max Shoppe</h2>
+        <div class="header__icon">
+          🛒 <span class="header__icon--total">0</span>
+        </div>
+      </header>
+      <main class="container">
+        <div class="products"></div>
+      </main>
+    </div>
+
+    <div class="shoppingCartApp">
+      <header class="header">
+        <h2 class="header__title">
+          <a class="btn" href="./index.html">Go back</a>
+        </h2>
+      </header>
+      <main class="container">
+        <section class="shopping-cart">
+          <h2>Total price: <span class="totalPrice">0</span>$</h2>
+          <div class="cart-items">
+            <div class="item"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer>
+      <p>Copyright &copy; 2023. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const searchInput = document.querySelector('#search');
+
+        searchInput.addEventListener('keyup', function (event) {
+          const searchQuery = event.target.value.toLowerCase().trim();
+
+          // your products should be in some sort of collection like this
+          const products = document.querySelectorAll('.product-item');
+
+          products.forEach((product) => {
+            const title = product.querySelector('.product__title').innerText.toLowerCase();
+            if (title.includes(searchQuery)) {
+              product.style.display = 'block';
+            } else {
+              product.style.display = 'none';
+            }
+          });
+        });
+    </script>
+
+  </body>
+</html>
