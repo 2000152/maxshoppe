@@ -1,44 +1,110 @@
-**maxshoppe**
+# Maxshoppe: An Express Node.js App Deployment Guide on Azure with MSSQL
 
-1.steps to build an push docker containers to container registry in azure
+This guide outlines the steps for constructing and deploying an Express Node.js application, Maxshoppe, that includes an MSSQL database on Azure through Docker containers.
 
+## Pre-requisites
+
+- Docker installation on your local machine
+- Azure CLI installation on your local machine
+- Valid Azure account with an active subscription
+
+## Step 1: Construction of the Docker Image
+
+Switch to the directory where your Dockerfile resides and execute the following command to create the Docker image:
+
+```bash
 docker build -t maxshoppe:v1 .
+```
 
-2.create Container registry and login into it
+## Step 2: Establishing Connection to Azure and Azure Container Registry (ACR)
 
- az acr login --name maxshoppe
+Authenticate your access to Azure:
 
- docker tag resbook:v1 maxshoppe.azurecr.io/resbook:v1
+```bash
+az login
+```
 
- docker push maxshoppe.azurecr.io/resbook:v1
+Proceed with the Azure Container Registry (ACR) login:
 
-you can run by contianer instance or using web ip, both have been achieved below
+```bash
+az acr login --name maxshoppeacr
+```
 
-container with ip and port https://maxshoppe.azurewebsites.net/
+## Step 3: Assigning Tags to the Docker Image
 
-D**atabase connection for maxshoppe**
+Tag the Docker image with your ACR's login server:
 
-import the mssql database from azure latest
+```bash
+docker tag maxshoppe:v1 maxshoppeacr.azurecr.io/maxshoppe:v1
+```
 
- docker pull mcr.microsoft.com/mssql/server:2022-latest
+## Step 4: Uploading the Docker Image to ACR
 
-create container with same registry as maxshoppe
+Push your Docker image to the ACR:
 
-declare variables in advance settings of the repo image
+```bash
+docker push maxshoppeacr.azurecr.io/maxshoppe:v1
+```
 
+## Step 5: Creating Resource Group and MSSQL Server Container on Azure
+
+Initialize a resource group:
+
+```bash
+az group create --name MaxShoppeResourceGroup --location eastus
+```
+
+Establish an Azure Container Instances (ACI) for the MSSQL Server:
+
+```bash
+az container create --name mssqlservercontainer --resource-group MaxShoppeResourceGroup --image mcr.microsoft.com/mssql/server:2022-latest --ip-address Public --ports 1433 --cpu 2 --memory 4 --environment-variables ACCEPT_EULA=Y SA_PASSWORD=Password@123
+```
+
+## Step 6: Launching the Application Container on Azure
+
+Set up a Web App for Containers service on Azure:
+
+```bash
+az appservice plan create --name MaxShoppeServicePlan --resource-group MaxShoppeResourceGroup --sku B1 --is-linux
+
+az webapp create --resource-group MaxShoppeResourceGroup --plan MaxShoppeServicePlan --name maxshoppeapp --deployment-container-image-name maxshoppeacr.azurecr.io/maxshoppe:v1
+```
+
+## Step 7: Configuration of Advanced Settings 
+
+Navigate to the properties of the web app and in the 'Advanced' tab, include the following JSON configuration:
+
+```json
 {
-"name": "DB_HOST",
-"value": "db_ip", 
-"slotSetting": false
+    "name": "DB_HOST",
+    "value": "ip_address",
+    "slotSetting": false
 },
-{ "name": "DB_NAME", 
-"value": "mydb",
-"slotSetting": false },
-{ "name": "DB_PASSWORD",
-"value": "Password@123",
-"slotSetting": false },
-{ "name": "DB_USER",
-"value": "sa", 
-"slotSetting": false },
+{
+    "name": "DB_NAME",
+    "value": "maxshoppe",
+    "slotSetting": false
+},
+{
+    "name": "DB_PASSWORD",
+    "value": "Password@123",
+    "slotSetting": false
+},
+{
+    "name": "DB_USER",
+    "value": "sa",
+    "slotSetting": false
+}
+```
 
-you can test you connection with db tools
+## Step 8: Configuring Environment Variables
+
+Set the necessary environment variables for the application:
+
+```bash
+az webapp config appsettings set --resource-group MaxShoppeResourceGroup --name maxshoppeapp --settings DB_HOST=ipaddress DB_NAME=maxshoppedb DB_PASSWORD=Password@123 DB_USER=sa
+```
+
+## Step 9: Finalizing the Deployment
+
+Finally, open the Azure portal and locate the web application at https://maxshoppe.azurewebsites.net/
