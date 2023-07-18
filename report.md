@@ -53,10 +53,7 @@ https://github.com/2000152/maxshoppe/new/main
 
 AZURE LINK
 
-
-
-
-
+https://maxshoppe.azurewebsites.net/
 
 
 References
